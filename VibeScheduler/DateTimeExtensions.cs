@@ -38,7 +38,7 @@ namespace VibeScheduler
         }
 
         public static long ToUnix(this DateTime dateTime) => new DateTimeOffset(dateTime).ToUnixTimeMilliseconds();
-        public static DateTime FromUnix(this long milliseconds) => new DateTime(TimeSpan.FromMilliseconds(milliseconds).Ticks).ToLocalTime();
+        public static DateTime FromUnix(this long milliseconds) => DateTimeOffset.FromUnixTimeMilliseconds(milliseconds).DateTime.ToLocalTime();
 
         internal static (DateTime From, DateTime To) ToDateTimeRange(this DateTime fromDateTime, TimeSpan fromTime, TimeSpan toTime)
         {
