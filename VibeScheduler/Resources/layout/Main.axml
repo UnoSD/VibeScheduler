@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <Toolbar
+        android:minHeight="?android:attr/actionBarSize"
+        android:background="?android:attr/colorPrimary"
+        android:minWidth="25px"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/Toolbar">
+        <Button
+            android:text="Add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/Add" />
+    </Toolbar>
+    <CheckBox
+        android:text="Vibrate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/Vibrate" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/Time">
+        <EditText
+            android:inputType="time"
+            android:id="@+id/From"
+            android:layout_width="110.0dp"
+            android:layout_height="match_parent" />
+        <EditText
+            android:inputType="time"
+            android:id="@+id/To"
+            android:layout_width="110.0dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/Days">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/Days1">
+            <CheckBox
+                android:text="Mon"
+                android:id="@+id/Mon"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <CheckBox
+                android:text="Tue"
+                android:id="@+id/Tue"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <CheckBox
+                android:text="Wed"
+                android:id="@+id/Wed"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/Days2">
+            <CheckBox
+                android:text="Thu"
+                android:id="@+id/Thu"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <CheckBox
+                android:text="Fri"
+                android:id="@+id/Fri"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <CheckBox
+                android:text="Sat"
+                android:id="@+id/Sat"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <CheckBox
+                android:text="Sun"
+                android:id="@+id/Sun"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+    </LinearLayout>
+    <ListView
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/Scheduled" />
+</LinearLayout>
