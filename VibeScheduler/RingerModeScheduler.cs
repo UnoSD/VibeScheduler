@@ -16,10 +16,17 @@ namespace VibeScheduler
         {
             var now = DateTime.Now;
 
-            var nextSchedule = schedules.Select(schedule => now.NextDateTimeOn(schedule.Days, schedule.From))
-                                        .OrderBy(dateTime => dateTime)
+            var nextSchedule = schedules.Select(schedule => new
+                                        {
+                                            From = now.NextDateTimeOn(schedule.Days, schedule.From),
+                                            To = now.NextDateTimeOn(schedule.Days, schedule.From)
+                                        })
+                                        .OrderBy(schedule => schedule.From)
                                         .FirstOrDefault();
-            
+
+            if (nextSchedule == null)
+                return;
+
             var intent = new Intent(ctx, typeof(ScheduleReceiver));
             intent.PutExtra("title", "Hello");
             intent.PutExtra("message", "World!");
@@ -30,15 +37,15 @@ namespace VibeScheduler
 
             manager.Cancel(pending);
 
-            var milliseconds = new DateTimeOffset(nextSchedule).ToUnixTimeMilliseconds();
+            var fromMilliseconds = new DateTimeOffset(nextSchedule.From).ToUnixTimeMilliseconds();
+            var toMilliseconds = new DateTimeOffset(nextSchedule.To).ToUnixTimeMilliseconds();
 
-            if (now > nextSchedule)
-            {
+            if (now > nextSchedule.From)
                 pending.Send();
-                return;
-            }
-            
-            manager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, milliseconds, pending);
+            else
+                manager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, fromMilliseconds, pending);
+
+            manager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, toMilliseconds + 1000, pending);
         }
     }
 }

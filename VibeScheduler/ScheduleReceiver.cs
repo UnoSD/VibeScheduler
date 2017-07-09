@@ -26,7 +26,10 @@ namespace VibeScheduler
             var audioManager = (AudioManager)context.GetSystemService(Context.AudioService);
 
             if (schedule == null)
+            {
+                audioManager.RingerMode = RingerMode.Normal;
                 return;
+            }
 
             audioManager.RingerMode = schedule.Mode;
 
