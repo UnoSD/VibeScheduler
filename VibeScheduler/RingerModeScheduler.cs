@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Android.App;
 using Android.Content;
-using Android.Runtime;
+using Android.Media;
 
 namespace VibeScheduler
 {
@@ -12,40 +12,47 @@ namespace VibeScheduler
         // SetAlarm, SetExactAndAllowWhileIdle and system able to move your alarm:
         // https://www.reddit.com/r/androiddev/comments/59u92p/how_do_i_schedule_exact_offline_alarms_now/
         // https://developer.android.com/reference/android/app/AlarmManager.html
-        internal void ScheduleNextUpdate(IReadOnlyCollection<RingerModeSchedule> schedules, Context ctx)
+        internal void ScheduleNextUpdate(Context context, IReadOnlyCollection<RingerModeSchedule> schedules)
         {
             var now = DateTime.Now;
 
-            var nextSchedule = schedules.Select(schedule => new
-                                        {
-                                            From = now.NextDateTimeOn(schedule.Days, schedule.From),
-                                            To = now.NextDateTimeOn(schedule.Days, schedule.From)
-                                        })
-                                        .OrderBy(schedule => schedule.From)
-                                        .FirstOrDefault();
+            var futureSchedules = schedules.Select(schedule => new
+                                            {
+                                                Range = now.NextDateTimeOn(schedule.Days, schedule.From)
+                                                           .ToDateTimeRange(schedule.From, schedule.To),
+                                                Schedule = schedule
+                                            })
+                                           .OrderBy(schedule => schedule.Range.From)
+                                           .ToList();
 
-            if (nextSchedule == null)
+            if (!futureSchedules.Any())
                 return;
 
-            var intent = new Intent(ctx, typeof(ScheduleReceiver));
-            intent.PutExtra("title", "Hello");
-            intent.PutExtra("message", "World!");
+            var nextSchedule = futureSchedules.First();
 
-            var pending = PendingIntent.GetBroadcast(ctx, 0, intent, PendingIntentFlags.UpdateCurrent);
+            ScheduleNextUpdate(nextSchedule.Range.From, nextSchedule.Schedule.Mode, context, nextSchedule.Range.To.ToUnix());
+        }
 
-            var manager = ctx.GetSystemService(Context.AlarmService).JavaCast<AlarmManager>();
+        static void ScheduleNextUpdate(DateTime dateTime, RingerMode mode, Context context, long endTimeMilliseconds)
+        {
+            var intent = GetIntent(context, mode, endTimeMilliseconds);
 
-            manager.Cancel(pending);
+            var manager = context.GetAlarmManager();
 
-            var fromMilliseconds = new DateTimeOffset(nextSchedule.From).ToUnixTimeMilliseconds();
-            var toMilliseconds = new DateTimeOffset(nextSchedule.To).ToUnixTimeMilliseconds();
+            manager.ScheduleIntent(dateTime, intent);
+        }
 
-            if (now > nextSchedule.From)
-                pending.Send();
-            else
-                manager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, fromMilliseconds, pending);
+        internal void ScheduleNextUpdateWithoutEndTime(DateTime dateTime, RingerMode mode, Context context) => 
+            ScheduleNextUpdate(dateTime, mode, context, 0);
 
-            manager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, toMilliseconds + 1000, pending);
+        static PendingIntent GetIntent(Context context, RingerMode ringerMode, long toMilliseconds)
+        {
+            var intent = new Intent(context, typeof(ScheduleReceiver));
+
+            intent.PutExtra("RingerMode", (int)ringerMode);
+            intent.PutExtra("To", toMilliseconds);
+
+            return PendingIntent.GetBroadcast(context, 0, intent, PendingIntentFlags.UpdateCurrent);
         }
     }
 }

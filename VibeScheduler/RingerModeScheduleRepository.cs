@@ -46,6 +46,15 @@ namespace VibeScheduler
             await connection.DeleteAsync(schedule).ConfigureAwait(false);
         }
 
+        internal async Task ClearSchedulesAsync()
+        {
+            var connection = await _connection.Value.ConfigureAwait(false);
+
+            // TODO: TRUNCATE
+            await connection.DropTableAsync<RingerModeSchedule>().ConfigureAwait(false);
+            await connection.CreateTableAsync<RingerModeSchedule>().ConfigureAwait(false);
+        }
+
         static string GetFilePath()
         {
             var path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);

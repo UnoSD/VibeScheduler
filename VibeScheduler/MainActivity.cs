@@ -41,10 +41,25 @@ namespace VibeScheduler
             var sun = FindViewById<CheckBox>(Resource.Id.Sun);
             var scheduled = FindViewById<ListView>(Resource.Id.Scheduled);
 
+#if DEBUG
+            await _repository.ClearSchedulesAsync();
+
+            var fromSpan = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 20);
+
+            await _repository.AddScheduleAsync(new RingerModeSchedule
+            {
+                From = fromSpan,
+                To = fromSpan.Add(new TimeSpan(0, 1, 0)),
+                Name = "System generated",
+                Mode = RingerMode.Vibrate,
+                Days = DateTime.Now.DayOfWeek.ToWeekDay()
+            });
+#endif
+
             var schedules = await _repository.GetSchedulesAsync();
 
             // TODO: This needs to be done at startup instead
-            _scheduler.ScheduleNextUpdate(schedules, this);
+            _scheduler.ScheduleNextUpdate(this, schedules);
 
             UpdateUi(scheduled, this, schedules);
 
@@ -79,7 +94,7 @@ namespace VibeScheduler
 
             Toast.MakeText(this, "Deleted", ToastLength.Short).Show();
 
-            _scheduler.ScheduleNextUpdate(schedules, this);
+            _scheduler.ScheduleNextUpdate(this, schedules);
         }
 
         static void UpdateUi(ListView list, Context ctx, IEnumerable<RingerModeSchedule> schedules) =>
@@ -92,9 +107,9 @@ namespace VibeScheduler
 
             var schedules = await _repository.GetSchedulesAsync();
 
-            _scheduler.ScheduleNextUpdate(schedules, this);
-
             UpdateUi(list, context, schedules);
+
+            _scheduler.ScheduleNextUpdate(this, schedules);
         }
 
         static RingerModeSchedule GetModel(ICheckable vibrate, TextView from, TextView to, ICheckable mon, ICheckable tue, ICheckable wed, ICheckable thu, ICheckable fri, ICheckable sat, ICheckable sun) =>
